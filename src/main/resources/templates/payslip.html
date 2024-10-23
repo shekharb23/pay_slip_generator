@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Payslip</title>
+</head>
+<body>
+    <h2>Payslip for [[${employee.name}]]</h2>
+    <p>Employee ID: [[${employee.employeeId}]]</p>
+    <p>Bank: [[${employee.bank}]] (Account No: [[${employee.bankAccountNo}]])</p>
+    <p>BASIC: [[${employee.basic}]]</p>
+    <p>HRA: [[${employee.houseRentAllowance}]]</p>
+    <p>SPECIAL ALLOWANCE: [[${employee.specialAllowance}]]</p>
+    <p>Gross Earnings: [[${employee.grossEarnings}]]</p>
+    <p>Net Pay: [[${employee.netPay}]]</p>
+</body>
+</html>

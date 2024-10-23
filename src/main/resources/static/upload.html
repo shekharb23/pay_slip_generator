@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Excel File</title>
+</head>
+<body>
+    <h2>Upload Employee Excel File for Payslip Generation</h2>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+        <!-- Month Selection -->
+        <label for="month">Select Month:</label>
+        <select id="month" name="month" required>
+            <option value="January">January</option>
+            <option value="February">February</option>
+            <option value="March">March</option>
+            <option value="April">April</option>
+            <option value="May">May</option>
+            <option value="June">June</option>
+            <option value="July">July</option>
+            <option value="August">August</option>
+            <option value="September">September</option>
+            <option value="October">October</option>
+            <option value="November">November</option>
+            <option value="December">December</option>
+        </select>
+
+        <!-- Year Selection -->
+        <label for="year">Select Year:</label>
+        <input type="number" id="year" name="year" value="2024" min="2000" max="2100" required>
+
+        <!-- Excel File Upload -->
+        <input type="file" id="file" name="file" accept=".xlsx" required>
+        <button type="submit">Upload and Generate Payslip</button>
+    </form>
+
+    <p id="result"></p>
+    <div id="downloadLinks" style="display:none;"></div> <!-- Download links container -->
+
+    <script>
+        document.getElementById("uploadForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('file').files[0];
+            const month = document.getElementById('month').value; // Get the selected month
+            const year = document.getElementById('year').value;   // Get the selected year
+
+            formData.append("file", fileInput);  // Append file to form data
+            formData.append("month", month);     // Append selected month
+            formData.append("year", year);       // Append selected year
+
+            fetch("/api/payslip/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json()) // Expecting JSON response (list of employee IDs)
+            .then(employeeIds => {
+                const resultContainer = document.getElementById("result");
+                const downloadLinksContainer = document.getElementById("downloadLinks");
+                downloadLinksContainer.innerHTML = ''; // Clear previous links
+
+                // If no employee IDs returned, show error
+                if (!employeeIds || employeeIds.length === 0) {
+                    resultContainer.innerText = "No payslips generated.";
+                    return;
+                }
+
+                resultContainer.innerText = "Payslips generated successfully!";
+
+                // Create download links for each employee ID
+                employeeIds.forEach(id => {
+                    const link = document.createElement('a');
+                    link.href = `/api/payslip/download/${id}`;
+                    link.innerText = `Download Payslip for Employee ID: ${id}`;
+                    link.download = true; // Enable file download
+                    downloadLinksContainer.appendChild(link);
+                    downloadLinksContainer.appendChild(document.createElement('br')); // Line break
+                });
+
+                // Show the download links
+                downloadLinksContainer.style.display = "block";
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("result").innerText = "Error uploading file.";
+            });
+        });
+    </script>
+</body>
+</html>
